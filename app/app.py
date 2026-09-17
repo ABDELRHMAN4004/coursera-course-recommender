@@ -3,6 +3,17 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from src.preprocessing import load_and_preprocess_data
+from src.recommender import CourseRecommender
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -59,42 +70,16 @@ st.markdown(
 # LOAD DATA
 # =========================================================
 
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+DATA_PATH = ROOT_DIR / "data" / "Coursera.csv"
+
 @st.cache_data
 def load_data():
-
-    # Change this filename if your CSV has another name
-    df = pd.read_csv("D:\Recommendation System Courses\data\Coursera.csv")
-
-    # Numerical columns
-    df["Rate"] = pd.to_numeric(
-        df["Rate"],
-        errors="coerce"
-    )
-
-    df["Reviews"] = pd.to_numeric(
-        df["Reviews"],
-        errors="coerce"
-    )
-
-    # Text columns
-    text_columns = [
-        "Subject",
-        "Title",
-        "Institution",
-        "Learning Product",
-        "Level",
-        "Duration",
-        "Gained Skills"
-    ]
-
-    for column in text_columns:
-        df[column] = df[column].fillna("")
-
-    df["Rate"] = df["Rate"].fillna(0)
-    df["Reviews"] = df["Reviews"].fillna(0)
-
-    return df
-
+    return load_and_preprocess_data(DATA_PATH)
 
 df = load_data()
 
